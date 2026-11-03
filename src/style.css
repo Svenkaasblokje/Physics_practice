@@ -276,6 +276,53 @@ button { border: 0; cursor: pointer; }
 
 .game-card { max-width: 860px; margin: 0 auto; }
 
+.round-setup-title { font-size: 24px; font-weight: 600; margin: 8px 0 6px; }
+
+.round-setup-hint { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 0 0 24px; }
+
+.round-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.round-count-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+  transition: all .2s;
+}
+
+.round-count-btn:hover { border-color: var(--accent); color: #e8ecf2; }
+
+.round-count-btn.active {
+  border-color: var(--accent);
+  background: rgba(111, 163, 212, 0.15);
+  color: var(--accent);
+}
+
+.round-slider {
+  flex: 1;
+  min-width: 160px;
+  accent-color: var(--accent);
+}
+
+.round-count-display {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: center;
+}
+
+.round-setup .btn { margin-left: auto; }
+
 .game-top {
   display: flex;
   align-items: center;

@@ -8,7 +8,8 @@ const app = document.querySelector('#app');
 const deviceKey = 'physics-practice-device';
 const deviceId = localStorage.getItem(deviceKey) || crypto.randomUUID();
 localStorage.setItem(deviceKey, deviceId);
-const roundSize = 10;
+const legacyMax = 10;
+let roundSize = 10;
 const moduleKeys = ['formulas', 'tangent', 'squares', 'sig1', 'sig2', 'sig3', 'sig4', 'units'];
 const labels = {
   nl: {
@@ -26,6 +27,9 @@ const labels = {
     notStarted: 'Nog niet gemaakt',
     overallScore: 'Totaalscore',
     startBtn: 'Beginnen',
+    roundSetup: 'Aantal vragen',
+    roundSetupHint: 'Kies hoeveel vragen je deze ronde wilt maken (minimaal 5, maximaal 20).',
+    startRound: 'Start ronde',
     newRound: 'Nog een ronde',
     back: 'Terug naar overzicht',
     menu: 'Overzicht',
@@ -82,6 +86,9 @@ const labels = {
     notStarted: 'Not started',
     overallScore: 'Overall score',
     startBtn: 'Start',
+    roundSetup: 'Number of questions',
+    roundSetupHint: 'Choose how many questions you want this round (minimum 5, maximum 20).',
+    startRound: 'Start round',
     newRound: 'Another round',
     back: 'Back to overview',
     menu: 'Overview',
@@ -250,7 +257,7 @@ function renderLanguagePicker() {
 
 function recordFor(key) {
   const stored = Number(state.records[key] || 0);
-  return stored <= roundSize ? stored * 10 : Math.round(stored);
+  return stored <= legacyMax ? stored * 10 : Math.round(stored);
 }
 function formatPercent(value) { return `${Math.round(value)}${t('percentGood')}`; }
 function moduleTitle(key) { return moduleInfo[key][language][0]; }
@@ -323,11 +330,55 @@ function resetProgress() {
 
 function startRound(key) {
   state.active = key;
-  state.questions = randomRound(key);
   state.index = 0;
   state.points = 0;
   state.answered = false;
-  renderGame();
+  renderRoundSetup(key);
+}
+
+function renderRoundSetup(key) {
+  document.title = t('title');
+  app.innerHTML = `<main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">N</div><div><h1>${t('title')}</h1><span class="eyebrow">${t('subtitle')}</span></div></div>
+      <div class="top-actions"><button class="lang-toggle" data-language>${t('language')}</button></div>
+    </header>
+    <section class="card game-card">
+      <div class="game-top">
+        <button class="back-button" data-back>← ${t('menu')}</button>
+        <span class="module-label">${esc(moduleTitle(key))}</span>
+      </div>
+      <h2 class="round-setup-title">${t('roundSetup')}</h2>
+      <p class="round-setup-hint">${t('roundSetupHint')}</p>
+      <div class="round-setup">
+        <button class="round-count-btn" data-count="5">5</button>
+        <button class="round-count-btn" data-count="10">10</button>
+        <button class="round-count-btn" data-count="15">15</button>
+        <button class="round-count-btn" data-count="20">20</button>
+        <input class="round-slider" data-round-slider type="range" min="5" max="20" step="1" value="${roundSize}">
+        <span class="round-count-display" data-round-count>${roundSize}</span>
+        <button class="btn btn-primary" data-start-round>${t('startRound')} →</button>
+      </div>
+    </section>
+  </main>`;
+  document.querySelector('[data-back]').addEventListener('click', renderHome);
+  document.querySelector('[data-language]').addEventListener('click', toggleLanguage);
+  const slider = document.querySelector('[data-round-slider]');
+  const display = document.querySelector('[data-round-count]');
+  const countBtns = document.querySelectorAll('[data-count]');
+  function setActive(count) {
+    slider.value = count;
+    display.textContent = count;
+    countBtns.forEach(btn => btn.classList.toggle('active', Number(btn.dataset.count) === count));
+  }
+  countBtns.forEach(btn => btn.addEventListener('click', () => setActive(Number(btn.dataset.count))));
+  slider.addEventListener('input', () => setActive(Number(slider.value)));
+  setActive(roundSize);
+  document.querySelector('[data-start-round]').addEventListener('click', () => {
+    roundSize = Number(slider.value);
+    state.questions = randomRound(key);
+    renderGame();
+  });
 }
 
 function renderGame() {
