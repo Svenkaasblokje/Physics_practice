@@ -228,9 +228,10 @@ async function saveProgress() {
 function updateSync(text) { const element = document.querySelector('[data-sync]'); if (element) element.textContent = text; }
 
 function renderLanguagePicker() {
+  document.title = 'Natuurkunde oefenen / Physics practice';
   app.innerHTML = `<main class="app-shell"><div class="lang-picker">
     <div class="lang-picker-mark">N</div>
-    <h2 class="lang-picker-title">Natuurkunde oefenen</h2>
+    <h2 class="lang-picker-title">Natuurkunde oefenen / Physics practice</h2>
     <p class="lang-picker-subtitle">Choose your language / Kies je taal</p>
     <div class="lang-picker-buttons">
       <button class="lang-picker-btn" data-pick="nl">Nederlands</button>
@@ -255,6 +256,7 @@ function moduleDescription(key) { return moduleInfo[key][language][1]; }
 function randomRound(key) { return sample(questionsFor(key), roundSize); }
 
 function renderHome() {
+  document.title = t('title');
   state.active = null;
   const cards = moduleKeys.map((key, index) => {
     const best = recordFor(key);
@@ -305,7 +307,7 @@ function toggleLanguage() {
   language = language === 'nl' ? 'en' : 'nl';
   localStorage.setItem('physics-practice-language', language);
   saveProgress();
-  state.active ? renderGame() : renderHome();
+  if (state.active) { startRound(state.active); } else { renderHome(); }
 }
 
 function resetProgress() {
@@ -325,6 +327,7 @@ function startRound(key) {
 }
 
 function renderGame() {
+  document.title = t('title');
   if (state.index >= roundSize) return finishRound();
   const key = state.active;
   const question = state.questions[state.index];
