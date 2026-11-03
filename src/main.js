@@ -262,7 +262,34 @@ function recordFor(key) {
 function formatPercent(value) { return `${Math.round(value)}${t('percentGood')}`; }
 function moduleTitle(key) { return moduleInfo[key][language][0]; }
 function moduleDescription(key) { return moduleInfo[key][language][1]; }
-function randomRound(key) { return sample(questionsFor(key), roundSize); }
+function questionSignature(question) {
+  return JSON.stringify({
+    type: question.type,
+    title: question.title,
+    subtitle: question.subtitle,
+    correct: question.correct,
+    time: question.time,
+    base: question.base,
+    slope: question.slope,
+    curve: question.curve,
+    values: question.values,
+    dt: question.dt,
+    area: question.area
+  });
+}
+
+function randomRound(key) {
+  const unique = [];
+  const seen = new Set();
+  questionsFor(key).forEach(question => {
+    const signature = questionSignature(question);
+    if (!seen.has(signature)) {
+      seen.add(signature);
+      unique.push(question);
+    }
+  });
+  return sample(unique, Math.min(roundSize, unique.length));
+}
 
 function renderHome() {
   document.title = t('title');
@@ -383,10 +410,11 @@ function renderRoundSetup(key) {
 
 function renderGame() {
   document.title = t('title');
-  if (state.index >= roundSize) return finishRound();
+  if (state.index >= state.questions.length) return finishRound();
   const key = state.active;
   const question = state.questions[state.index];
-  const percent = state.index / roundSize * 100;
+  const questionCount = state.questions.length;
+  const percent = state.index / questionCount * 100;
   app.innerHTML = `<main class="app-shell">
     <header class="topbar">
       <div class="brand"><div class="brand-mark">N</div><div><h1>${t('title')}</h1><span class="eyebrow">${t('subtitle')}</span></div></div>
@@ -398,7 +426,7 @@ function renderGame() {
         <span class="module-label">${esc(moduleTitle(key))}</span>
       </div>
       <div class="game-progress"><i style="width:${percent}%"></i></div>
-      <span class="question-meta">${t('question')} ${state.index + 1} ${t('of')} ${roundSize}</span>
+      <span class="question-meta">${t('question')} ${state.index + 1} ${t('of')} ${questionCount}</span>
       ${renderQuestion(question)}
       <div data-answer-area></div>
       <div class="game-actions"><button class="btn btn-primary" data-next hidden>${t('next')} →</button></div>
@@ -507,7 +535,7 @@ function drawSquares(question) {
 function finishRound() {
   const key = state.active;
   const previous = recordFor(key);
-  const roundPercent = Math.round(state.points / roundSize);
+  const roundPercent = Math.round(state.points / state.questions.length);
   state.records[key] = Math.max(previous, roundPercent);
   saveProgress();
   app.innerHTML = `<main class="app-shell">
