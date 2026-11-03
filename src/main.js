@@ -24,6 +24,7 @@ const labels = {
     best: 'Beste',
     percentGood: '% goed',
     notStarted: 'Nog niet gemaakt',
+    overallScore: 'Totaalscore',
     startBtn: 'Beginnen',
     newRound: 'Nog een ronde',
     back: 'Terug naar overzicht',
@@ -79,6 +80,7 @@ const labels = {
     best: 'Best',
     percentGood: '% correct',
     notStarted: 'Not started',
+    overallScore: 'Overall score',
     startBtn: 'Start',
     newRound: 'Another round',
     back: 'Back to overview',
@@ -268,6 +270,7 @@ function renderHome() {
     return `<div class="score-row"><div class="score-row-top"><span>${esc(moduleTitle(key))}</span><span>${formatPercent(percent)}</span></div><div class="progress"><i style="width:${percent}%"></i></div></div>`;
   }).join('');
   const nextModule = moduleKeys.find(key => recordFor(key) < 100) || 'formulas';
+  const overall = Math.round(moduleKeys.reduce((sum, key) => sum + recordFor(key), 0) / moduleKeys.length);
   app.innerHTML = `<main class="app-shell">
     <header class="topbar">
       <div class="brand"><div class="brand-mark">N</div><div><h1>${t('title')}</h1><span class="eyebrow">${t('subtitle')}</span></div></div>
@@ -287,6 +290,7 @@ function renderHome() {
     <section class="dashboard">
       <div class="card">
         <div class="card-head"><h3>${t('score')}</h3><button class="btn-danger" data-reset>${t('reset')}</button></div>
+        <div class="overall-score"><div class="overall-bar"><div class="progress"><i style="width:${overall}%"></i></div></div><span class="overall-value">${formatPercent(overall)}</span></div>
         <div class="scores">${scores}</div>
         <p class="score-note">${t('scoreNote')}</p>
         <div class="sync-status" data-sync>${t('synced')}</div>

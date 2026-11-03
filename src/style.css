@@ -172,6 +172,28 @@ button { border: 0; cursor: pointer; }
 
 .card-head h3 { font-size: 18px; margin: 0; font-weight: 600; }
 
+.overall-score {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  margin-bottom: 16px;
+}
+
+.overall-bar { flex: 1; }
+
+.overall-bar .progress { margin-top: 0; height: 6px; }
+
+.overall-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
 .scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
 .score-row {
